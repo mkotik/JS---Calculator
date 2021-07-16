@@ -1,53 +1,7 @@
+import calc from "./calc.js";
 console.log("hi");
-const lowerDisplayBox = document.querySelector(".displayText");
+const lowerDisplayBox = document.querySelector(".lowerDisplayText");
 const buttonBox = document.querySelector(".buttons");
-
-const calc = {
-  lowerText: lowerDisplayBox.textContent,
-  setLowerText: function () {
-    if (newValue.length > 14) return;
-    lowerDisplayBox.textContent = this.operandOne;
-  },
-
-  operandOne: null,
-  operandTwo: null,
-  setOperandOne: function (value) {
-    this.operandOne = value;
-  },
-  setOperandTwo: function (value) {
-    this.operandTwo = value;
-  },
-  operator: null,
-  setOperator: function (value) {
-    this.operator = value;
-  },
-
-  answer: null,
-  setAnswer: function (value) {
-    this.answer = value;
-  },
-  buttons: [
-    "AC",
-    "+/-",
-    "%",
-    "/",
-    7,
-    8,
-    9,
-    "X",
-    4,
-    5,
-    6,
-    "-",
-    1,
-    2,
-    3,
-    "+",
-    0,
-    ".",
-    "=",
-  ],
-};
 
 // Build out the UI components
 const createButtons = function (buttons) {
@@ -71,17 +25,34 @@ const createButtons = function (buttons) {
 };
 
 createButtons(calc.buttons);
-
 const btnArr = Array.from(document.querySelectorAll(".button"));
-
 const numberBtnArr = btnArr.filter((cur) => cur.dataset.value * 0 === 0);
-console.log(numberBtnArr);
 
+// Add event listener
 buttonBox.addEventListener("click", function (e) {
   const target = e.target.closest(".button");
+  console.log(target);
   const value = target.dataset.value;
-  if (numberBtnArr.includes(target)) {
+  const isNumber = numberBtnArr.includes(target);
+  const isOperator = calc.operandButtons.includes(value);
+  const isEqualsSign = value.includes("=");
+  const operandOneSet = calc.operandOne ? true : false;
+  const operandTwoSet = calc.operandTwo ? true : false;
+  const operatorSet = calc.operator ? true : false;
+  if (isNumber && !operatorSet) {
     calc.setOperandOne(value);
+    calc.setLowerText();
+  }
+  if (isOperator && operandOneSet && !operandTwoSet) {
+    calc.setOperator(value);
+    calc.setLowerText();
+  }
+  if (isNumber && operatorSet) {
+    calc.setOperandTwo(value);
+    calc.setLowerText();
+  }
+  if (isEqualsSign && operandOneSet && operandTwoSet && operatorSet) {
+    calc.calculate();
   }
 });
 
