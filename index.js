@@ -36,6 +36,7 @@ buttonBox.addEventListener("click", function (e) {
   const isNumber = numberBtnArr.includes(target);
   const isOperator = calc.operandButtons.includes(value);
   const isEqualsSign = value.includes("=");
+  const isClearBtn = value.includes("AC");
   const operandOneSet = calc.operandOne ? true : false;
   const operandTwoSet = calc.operandTwo ? true : false;
   const operatorSet = calc.operator ? true : false;
@@ -53,6 +54,9 @@ buttonBox.addEventListener("click", function (e) {
   }
   if (isEqualsSign && operandOneSet && operandTwoSet && operatorSet) {
     calc.calculate();
+  }
+  if (isClearBtn) {
+    calc.clear();
   }
 });
 

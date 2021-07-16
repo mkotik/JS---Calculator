@@ -10,12 +10,18 @@ const calc = {
   },
 
   operandOne: null,
+  operandOneArr: [],
   operandTwo: null,
+  operandTwoArr: [],
   setOperandOne: function (value) {
-    this.operandOne = value;
+    this.operandOneArr.push(value);
+    const printedValue = this.operandOneArr.join("");
+    this.operandOne = Number(printedValue);
   },
   setOperandTwo: function (value) {
-    this.operandTwo = value;
+    this.operandTwoArr.push(value);
+    const printedValue = this.operandTwoArr.join("");
+    this.operandTwo = Number(printedValue);
   },
   operator: null,
   setOperator: function (value) {
@@ -50,14 +56,28 @@ const calc = {
   operandButtons: ["X", "-", "/", "+"],
   calculate: function () {
     let ans;
-    this.operandOne = Number(this.operandOne);
-    this.operandTwo = Number(this.operandTwo);
-    console.log(typeof this.operandOne);
     if (this.operator === "/") ans = this.operandOne / this.operandTwo;
     if (this.operator === "X") ans = this.operandOne * this.operandTwo;
     if (this.operator === "-") ans = this.operandOne - this.operandTwo;
     if (this.operator === "+") ans = this.operandOne + this.operandTwo;
+    this.answer = ans;
+    console.log(this.answer);
     upperDisplayBox.textContent = ans;
+  },
+  answer: null,
+  setUpperText: function () {
+    upperDisplayBox.textContent = `${this.answer ? "ans" : ""}`;
+  },
+  clear: function () {
+    this.operandOne = null;
+    this.operandOneArr = [];
+    this.operandTwo = null;
+    this.operandTwoArr = [];
+    this.operandTwoAnswer = null;
+    this.operator = null;
+    this.answer = null;
+    this.setLowerText();
+    this.setUpperText();
   },
 };
 
