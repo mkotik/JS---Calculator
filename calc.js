@@ -4,9 +4,17 @@ const calc = {
   lowerText: lowerDisplayBox.textContent,
   setLowerText: function () {
     // if (new.length > 14) return;
-    lowerDisplayBox.textContent = `${this.operandOne ? this.operandOne : ""} ${
-      this.operator ? this.operator : ""
-    } ${this.operandTwo ? this.operandTwo : ""}`;
+    if (this.answer) {
+      lowerDisplayBox.textContent = `${this.operandOne ? "ans" : "0"} ${
+        this.operator ? this.operator : ""
+      } ${this.operandTwo ? this.operandTwo : ""}`;
+    } else {
+      lowerDisplayBox.textContent = `${
+        this.operandOne ? this.operandOne : ""
+      } ${this.operator ? this.operator : ""} ${
+        this.operandTwo ? this.operandTwo : ""
+      }`;
+    }
   },
 
   operandOne: null,
@@ -14,9 +22,23 @@ const calc = {
   operandTwo: null,
   operandTwoArr: [],
   setOperandOne: function (value) {
-    this.operandOneArr.push(value);
-    const printedValue = this.operandOneArr.join("");
-    this.operandOne = Number(printedValue);
+    if (this.answer) {
+      this.operandOne = Number(this.answer);
+    } else if (this.operator) {
+      console.log("there is an operator");
+      this.operandOneArr.push("0");
+      const printedValue = Number(this.operandOne).toFixed(1);
+      this.operandOne = printedValue;
+    } else {
+      this.operandOneArr.push(value);
+      const printedValue = this.operandOneArr.join("");
+      if (printedValue[printedValue.length - 1] === ".") {
+        const flPointPrintedValue = printedValue;
+        this.operandOne = flPointPrintedValue;
+        return;
+      }
+      this.operandOne = Number(printedValue);
+    }
   },
   setOperandTwo: function (value) {
     this.operandTwoArr.push(value);
@@ -61,8 +83,15 @@ const calc = {
     if (this.operator === "-") ans = this.operandOne - this.operandTwo;
     if (this.operator === "+") ans = this.operandOne + this.operandTwo;
     this.answer = ans;
-    console.log(this.answer);
+
+    this.operandOne = null;
+    this.operandOneArr = [];
+    this.operandTwo = null;
+    this.operandTwoArr = [];
+    this.operator = null;
+
     upperDisplayBox.textContent = ans;
+    this.setLowerText();
   },
   answer: null,
   setUpperText: function () {
@@ -73,7 +102,6 @@ const calc = {
     this.operandOneArr = [];
     this.operandTwo = null;
     this.operandTwoArr = [];
-    this.operandTwoAnswer = null;
     this.operator = null;
     this.answer = null;
     this.setLowerText();

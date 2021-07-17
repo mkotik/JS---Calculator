@@ -37,6 +37,7 @@ buttonBox.addEventListener("click", function (e) {
   const isOperator = calc.operandButtons.includes(value);
   const isEqualsSign = value.includes("=");
   const isClearBtn = value.includes("AC");
+  const isDecimalBtn = value.includes(".");
   const operandOneSet = calc.operandOne ? true : false;
   const operandTwoSet = calc.operandTwo ? true : false;
   const operatorSet = calc.operator ? true : false;
@@ -46,6 +47,8 @@ buttonBox.addEventListener("click", function (e) {
   }
   if (isOperator && operandOneSet && !operandTwoSet) {
     calc.setOperator(value);
+
+    calc.setOperandOne();
     calc.setLowerText();
   }
   if (isNumber && operatorSet) {
@@ -58,6 +61,53 @@ buttonBox.addEventListener("click", function (e) {
   if (isClearBtn) {
     calc.clear();
   }
+  if (isOperator && calc.answer) {
+    calc.setOperandOne();
+    calc.setOperator(value);
+    calc.setLowerText();
+    console.log(calc.operandOne);
+  }
+  if (isOperator && operandOneSet && operatorSet && operandTwoSet) {
+    calc.calculate();
+    calc.setOperandOne();
+    calc.setOperator(value);
+    calc.setLowerText();
+  }
+  if (isDecimalBtn && !operatorSet && !operandTwoSet) {
+    if (calc.operandOneArr.includes(".")) return;
+    if (!calc.operandOneArr.length) return;
+    calc.setOperandOne(value);
+    calc.setLowerText();
+  }
+
+  // if (isDecimalBtn && operandOneSet && operatorSet) {
+  //   calc.setOperandTwo(value);
+  //   calc.setLowerText();
+  // }
 });
 
-// .closest
+const btnOperandOne = document.querySelector(".btnOperandOne");
+const btnOperandTwo = document.querySelector(".btnOperandTwo");
+const btnAnswer = document.querySelector(".btnAnswer");
+const btnOperandOneArr = document.querySelector(".btnOperandOneArr");
+const btnOperandTwoArr = document.querySelector(".btnOperandTwoArr");
+
+btnOperandOne.addEventListener("click", function () {
+  console.log(calc.operandOne);
+});
+
+btnOperandTwo.addEventListener("click", function () {
+  console.log(calc.operandTwo);
+});
+
+btnAnswer.addEventListener("click", function () {
+  console.log(calc.answer);
+});
+
+btnOperandOneArr.addEventListener("click", function () {
+  console.log(calc.operandOneArr);
+});
+
+btnOperandTwoArr.addEventListener("click", function () {
+  console.log(calc.operandTwoArr);
+});
