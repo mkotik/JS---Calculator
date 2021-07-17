@@ -24,11 +24,6 @@ const calc = {
   setOperandOne: function (value) {
     if (this.answer) {
       this.operandOne = Number(this.answer);
-    } else if (this.operator) {
-      console.log("there is an operator");
-      this.operandOneArr.push("0");
-      const printedValue = Number(this.operandOne).toFixed(1);
-      this.operandOne = printedValue;
     } else {
       this.operandOneArr.push(value);
       const printedValue = this.operandOneArr.join("");
@@ -78,10 +73,14 @@ const calc = {
   operandButtons: ["X", "-", "/", "+"],
   calculate: function () {
     let ans;
-    if (this.operator === "/") ans = this.operandOne / this.operandTwo;
-    if (this.operator === "X") ans = this.operandOne * this.operandTwo;
-    if (this.operator === "-") ans = this.operandOne - this.operandTwo;
-    if (this.operator === "+") ans = this.operandOne + this.operandTwo;
+    if (this.operator === "/")
+      ans = Number(this.operandOne) / Number(this.operandTwo);
+    if (this.operator === "X")
+      ans = Number(this.operandOne) * Number(this.operandTwo);
+    if (this.operator === "-")
+      ans = Number(this.operandOne) - Number(this.operandTwo);
+    if (this.operator === "+")
+      ans = Number(this.operandOne) + Number(this.operandTwo);
     this.answer = ans;
 
     this.operandOne = null;
@@ -107,6 +106,17 @@ const calc = {
     this.setLowerText();
     this.setUpperText();
   },
+};
+
+export const decFormatter = function (operandArr) {
+  const lastIndex = operandArr.length - 1;
+  const lastItem = operandArr[lastIndex];
+  const object = {};
+  if (lastItem === ".") {
+    object.string = operandArr.join("") + "0";
+    object.num = Number(operandArr.join(""));
+  }
+  return object;
 };
 
 export default calc;

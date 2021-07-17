@@ -1,4 +1,5 @@
 import calc from "./calc.js";
+import { decFormatter } from "./calc.js";
 console.log("hi");
 const lowerDisplayBox = document.querySelector(".lowerDisplayText");
 const buttonBox = document.querySelector(".buttons");
@@ -86,15 +87,15 @@ buttonBox.addEventListener("click", function (e) {
   // }
 });
 
+console.log("23.0" + 52);
+
 const btnOperandOne = document.querySelector(".btnOperandOne");
 const btnOperandTwo = document.querySelector(".btnOperandTwo");
 const btnAnswer = document.querySelector(".btnAnswer");
 const btnOperandOneArr = document.querySelector(".btnOperandOneArr");
 const btnOperandTwoArr = document.querySelector(".btnOperandTwoArr");
 
-btnOperandOne.addEventListener("click", function () {
-  console.log(calc.operandOne);
-});
+btnOperandOne.addEventListener("click", function () {});
 
 btnOperandTwo.addEventListener("click", function () {
   console.log(calc.operandTwo);
@@ -106,6 +107,8 @@ btnAnswer.addEventListener("click", function () {
 
 btnOperandOneArr.addEventListener("click", function () {
   console.log(calc.operandOneArr);
+  console.log(decFormatter(calc.operandOneArr).string);
+  console.log(decFormatter(calc.operandOneArr));
 });
 
 btnOperandTwoArr.addEventListener("click", function () {

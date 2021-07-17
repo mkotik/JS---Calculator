@@ -54,11 +54,13 @@
   grid-column-gap: 25px;
   grid-row-gap: 25px;
 }
+
 .upperDisplayText {
   font-size: 60px;
   margin: 0px;
   margin-right: 30px;
 }
+
 .lowerDisplayText {
   font-size: 60px;
   margin: 0px;
@@ -74,6 +76,11 @@
   justify-content: center;
   align-items: center;
   border-radius: 10px;
+}
+
+.button:hover {
+  cursor: pointer;
+  background-color: rgb(199, 193, 193);
 }
 
 .btn0 {
