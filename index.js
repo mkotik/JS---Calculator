@@ -1,116 +1,118 @@
-import calc from "./calc.js";
-import { decFormatter } from "./calc.js";
-console.log("hi");
-const lowerDisplayBox = document.querySelector(".lowerDisplayText");
-const buttonBox = document.querySelector(".buttons");
-
-// Build out the UI components
-const createButtons = function (buttons) {
-  const btnsArr = buttons.map((cur) => {
-    return document.createElement("div");
-  });
-  btnsArr.forEach((cur, i) => {
-    const text = calc.buttons[i];
-    const h3 = document.createElement("h3");
-    h3.textContent = text;
-    cur.appendChild(h3);
-    cur.dataset.value = buttons[i];
-    cur.classList.add("button");
-    cur.classList.add(`btn${buttons[i]}`);
-    buttonBox.appendChild(cur);
-    if (cur === 0) cur.classList.add("btn0");
-  });
-
-  console.log(btnsArr);
-  console.log(btnsArr[3].dataset.value);
+const calc = {
+  operandOneArr: [],
+  operandTwoArr: [],
+  operandOne: null,
+  operandTwo: null,
+  operator: null,
+  answer: null,
 };
 
-createButtons(calc.buttons);
-const btnArr = Array.from(document.querySelectorAll(".button"));
-const numberBtnArr = btnArr.filter((cur) => cur.dataset.value * 0 === 0);
+const buttons = document.querySelector(".buttons");
+console.log(buttons);
 
-// Add event listener
-buttonBox.addEventListener("click", function (e) {
-  const target = e.target.closest(".button");
-  console.log(target);
-  const value = target.dataset.value;
-  const isNumber = numberBtnArr.includes(target);
-  const isOperator = calc.operandButtons.includes(value);
-  const isEqualsSign = value.includes("=");
-  const isClearBtn = value.includes("AC");
-  const isDecimalBtn = value.includes(".");
-  const operandOneSet = calc.operandOne ? true : false;
-  const operandTwoSet = calc.operandTwo ? true : false;
-  const operatorSet = calc.operator ? true : false;
-  if (isNumber && !operatorSet) {
-    calc.setOperandOne(value);
-    calc.setLowerText();
-  }
-  if (isOperator && operandOneSet && !operandTwoSet) {
-    calc.setOperator(value);
+const lowerTextBox = document.querySelector(".lowerDisplayText");
+const upperTextBox = document.querySelector(".upperDisplayText");
 
-    calc.setOperandOne();
-    calc.setLowerText();
+const formatOperandArr = function (arr) {
+  const obj = {};
+  if (arr[0] == ".") arr.unshift("0");
+  if (arr[arr.length - 1] == ".") {
+    obj.string = arr.join("") + "0";
+    obj.number = Number(arr.join(""));
+  } else {
+    obj.string = arr.join("");
+    obj.number = Number(arr.join(""));
   }
-  if (isNumber && operatorSet) {
-    calc.setOperandTwo(value);
-    calc.setLowerText();
-  }
-  if (isEqualsSign && operandOneSet && operandTwoSet && operatorSet) {
-    calc.calculate();
-  }
-  if (isClearBtn) {
-    calc.clear();
-  }
-  if (isOperator && calc.answer) {
-    calc.setOperandOne();
-    calc.setOperator(value);
-    calc.setLowerText();
-    console.log(calc.operandOne);
-  }
-  if (isOperator && operandOneSet && operatorSet && operandTwoSet) {
-    calc.calculate();
-    calc.setOperandOne();
-    calc.setOperator(value);
-    calc.setLowerText();
-  }
-  if (isDecimalBtn && !operatorSet && !operandTwoSet) {
-    if (calc.operandOneArr.includes(".")) return;
-    if (!calc.operandOneArr.length) return;
-    calc.setOperandOne(value);
-    calc.setLowerText();
+  return obj;
+};
+
+const setOperandOne = function (value) {
+  if (calc.answer)
+    calc.operandOne = { string: calc.answer, number: calc.answer };
+  if (value == "." && calc.operandOneArr.includes(".")) return;
+  calc.operandOneArr.push(value);
+  calc.operandOne = formatOperandArr(calc.operandOneArr);
+};
+
+const setOperandTwo = function (value) {
+  if (calc.answer) calc.operandTwo = null;
+  if (value == "." && calc.operandTwoArr.includes(".")) return;
+  calc.operandTwoArr.push(value);
+  calc.operandTwo = formatOperandArr(calc.operandTwoArr);
+};
+
+const calculate = function () {
+  if (!calc.operandOne || !calc.operandTwo || !calc.operator) return;
+  calc.answer = undefined;
+  if (calc.operator == "+")
+    calc.answer = calc.operandOne.number + calc.operandTwo.number;
+  if (calc.operator == "-")
+    calc.answer = calc.operandOne.number - calc.operandTwo.number;
+  if (calc.operator == "÷")
+    calc.answer = calc.operandOne.number / calc.operandTwo.number;
+  if (calc.operator == "×")
+    calc.answer = calc.operandOne.number * calc.operandTwo.number;
+  setUpperText();
+};
+
+const setLowerText = function () {
+  lowerTextBox.textContent = `${
+    calc.operandOne ? calc.operandOne.string : "0"
+  } ${calc.operator ? calc.operator : ""} ${
+    calc.operandTwo ? calc.operandTwo.string : ""
+  }`;
+};
+
+const setUpperText = function () {
+  upperTextBox.textContent = calc.answer;
+};
+
+buttons.addEventListener("click", function (e) {
+  const btn = e.target;
+  const value = e.target.dataset.value;
+  const isNum = btn.classList.contains("btn-num");
+  const isDecimal = value == ".";
+  const isOperator = btn.classList.contains("btn-op");
+  const isEquals = value == "=";
+  const isClear = value == "AC";
+  const operandOneActive = !calc.operator && !calc.operandTwo;
+  const operandTwoActive = calc.operandOne && calc.operator && !calc.answer;
+
+  if ((isNum || isDecimal) && operandOneActive) {
+    setOperandOne(value);
+    setLowerText();
   }
 
-  // if (isDecimalBtn && operandOneSet && operatorSet) {
-  //   calc.setOperandTwo(value);
-  //   calc.setLowerText();
-  // }
+  if (isOperator && calc.operandOne) {
+    calc.operator = value;
+    setLowerText();
+  }
+
+  if ((isNum || isDecimal) && operandTwoActive) {
+    setOperandTwo(value);
+    setLowerText();
+  }
+
+  if (isEquals && calc.operandOne && calc.operandTwo && calc.operator) {
+    calculate();
+  }
+
+  if (isClear) {
+    calc.operandOneArr = [];
+    calc.operandTwoArr = [];
+    calc.operandOne = null;
+    calc.operandTwo = null;
+    calc.answer = null;
+    setLowerText();
+    setUpperText();
+  }
 });
-
-console.log("23.0" + 52);
 
 const btnOperandOne = document.querySelector(".btnOperandOne");
-const btnOperandTwo = document.querySelector(".btnOperandTwo");
-const btnAnswer = document.querySelector(".btnAnswer");
 const btnOperandOneArr = document.querySelector(".btnOperandOneArr");
+const btnOperandTwo = document.querySelector(".btnOperandTwo");
 const btnOperandTwoArr = document.querySelector(".btnOperandTwoArr");
 
-btnOperandOne.addEventListener("click", function () {});
-
-btnOperandTwo.addEventListener("click", function () {
-  console.log(calc.operandTwo);
-});
-
-btnAnswer.addEventListener("click", function () {
-  console.log(calc.answer);
-});
-
-btnOperandOneArr.addEventListener("click", function () {
-  console.log(calc.operandOneArr);
-  console.log(decFormatter(calc.operandOneArr).string);
-  console.log(decFormatter(calc.operandOneArr));
-});
-
-btnOperandTwoArr.addEventListener("click", function () {
-  console.log(calc.operandTwoArr);
+btnOperandOne.addEventListener("click", function () {
+  console.log(calc.operandOne);
 });
