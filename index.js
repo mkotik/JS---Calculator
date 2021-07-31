@@ -27,17 +27,21 @@ const formatOperandArr = function (arr) {
 };
 
 const setOperandOne = function (value) {
-  if (calc.answer)
+  if (calc.answer && value !== ".") {
     calc.operandOne = { string: calc.answer, number: calc.answer };
-  if (value == "." && calc.operandOneArr.includes(".")) return;
-  calc.operandOneArr.push(value);
-  calc.operandOne = formatOperandArr(calc.operandOneArr);
+  } else {
+    if (value == "." && calc.operandOneArr.includes(".")) return;
+    if (value == "0" && calc.operandOneArr.length == 0) return;
+    if (value) calc.operandOneArr.push(value);
+    calc.operandOne = formatOperandArr(calc.operandOneArr);
+  }
 };
 
 const setOperandTwo = function (value) {
   if (calc.answer) calc.operandTwo = null;
   if (value == "." && calc.operandTwoArr.includes(".")) return;
-  calc.operandTwoArr.push(value);
+  if (value == "0" && calc.operandOneArr.length == 0) return;
+  if (value) calc.operandTwoArr.push(value);
   calc.operandTwo = formatOperandArr(calc.operandTwoArr);
 };
 
@@ -52,6 +56,17 @@ const calculate = function () {
     calc.answer = calc.operandOne.number / calc.operandTwo.number;
   if (calc.operator == "×")
     calc.answer = calc.operandOne.number * calc.operandTwo.number;
+  setUpperText();
+};
+
+const clear = function () {
+  calc.operandOneArr = [];
+  calc.operandTwoArr = [];
+  calc.operandOne = null;
+  calc.operandTwo = null;
+  calc.answer = null;
+  calc.operator = null;
+  setLowerText();
   setUpperText();
 };
 
@@ -75,8 +90,12 @@ buttons.addEventListener("click", function (e) {
   const isOperator = btn.classList.contains("btn-op");
   const isEquals = value == "=";
   const isClear = value == "AC";
-  const operandOneActive = !calc.operator && !calc.operandTwo;
-  const operandTwoActive = calc.operandOne && calc.operator && !calc.answer;
+  const isPlusMinus = value == "±";
+  const operandOneActive =
+    (!calc.operator && !calc.operandTwo) || (calc.answer && calc.operandTwo);
+  const operandTwoActive =
+    (calc.operandOne && calc.operator && !calc.answer) ||
+    (calc.answer && calc.operandOne && calc.operator);
 
   if ((isNum || isDecimal) && operandOneActive) {
     setOperandOne(value);
@@ -97,14 +116,62 @@ buttons.addEventListener("click", function (e) {
     calculate();
   }
 
-  if (isClear) {
-    calc.operandOneArr = [];
+  if ((isNum || isDecimal) && calc.answer && calc.operandTwo) {
+    clear();
+    setOperandOne(value);
+    setLowerText();
+  }
+
+  if (isOperator && calc.answer && operandOneActive) {
+    setOperandOne();
     calc.operandTwoArr = [];
-    calc.operandOne = null;
-    calc.operandTwo = null;
+    setOperandTwo();
+    calc.operator = value;
     calc.answer = null;
     setLowerText();
-    setUpperText();
+  }
+
+  if (isClear) {
+    clear();
+  }
+
+  if (isPlusMinus && operandOneActive && !calc.answer) {
+    const firstEl = calc.operandOneArr[0];
+    if (typeof Number(firstEl) == "number") {
+      calc.operandOneArr[0] = (Number(calc.operandOneArr[0]) * -1).toString();
+      setOperandOne();
+      setLowerText();
+    }
+    if (firstEl == "0") {
+      calc.operandOneArr.unshift("-");
+      setOperandOne();
+      setLowerText();
+    }
+    if (firstEl == "-") {
+      calc.operandOneArr.shift();
+      setOperandOne();
+      setLowerText();
+    }
+  }
+
+  if (isPlusMinus && operandTwoActive && !calc.answer) {
+    const firstEl = calc.operandTwoArr[0];
+    if (!firstEl) return;
+    if (typeof Number(firstEl) == "number") {
+      calc.operandTwoArr[0] = (Number(calc.operandTwoArr[0]) * -1).toString();
+      setOperandTwo();
+      setLowerText();
+    }
+    if (firstEl == "0") {
+      calc.operandTwoArr.unshift("-");
+      setOperandTwo();
+      setLowerText();
+    }
+    if (firstEl == "-") {
+      calc.operandTwoArr.shift();
+      setOperandTwo();
+      setLowerText();
+    }
   }
 });
 
@@ -115,4 +182,8 @@ const btnOperandTwoArr = document.querySelector(".btnOperandTwoArr");
 
 btnOperandOne.addEventListener("click", function () {
   console.log(calc.operandOne);
+});
+
+btnOperandOneArr.addEventListener("click", function () {
+  console.log(calc.operandOneArr);
 });
