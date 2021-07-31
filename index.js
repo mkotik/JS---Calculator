@@ -27,8 +27,16 @@ const formatOperandArr = function (arr) {
 };
 
 const setOperandOne = function (value) {
-  if (calc.answer && value !== ".") {
-    calc.operandOne = { string: calc.answer, number: calc.answer };
+  if (calc.answer) {
+    if (value == ".") {
+      console.log("yup");
+      calc.operandOneArr = ["."];
+      calc.answer = null;
+      return setOperandOne();
+    } else {
+      console.log("np");
+      calc.operandOne = { string: calc.answer, number: calc.answer };
+    }
   } else {
     if (value == "." && calc.operandOneArr.includes(".")) return;
     if (value == "0" && calc.operandOneArr.length == 0) return;
@@ -57,6 +65,11 @@ const calculate = function () {
   if (calc.operator == "×")
     calc.answer = calc.operandOne.number * calc.operandTwo.number;
   setUpperText();
+  calc.operandOneArr = [];
+  calc.operandTwoArr = [];
+  calc.operandOne = null;
+  calc.operandTwo = null;
+  calc.operator = null;
 };
 
 const clear = function () {
@@ -91,6 +104,7 @@ buttons.addEventListener("click", function (e) {
   const isEquals = value == "=";
   const isClear = value == "AC";
   const isPlusMinus = value == "±";
+  const isPercent = value == "%";
   const operandOneActive =
     (!calc.operator && !calc.operandTwo) || (calc.answer && calc.operandTwo);
   const operandTwoActive =
@@ -99,6 +113,7 @@ buttons.addEventListener("click", function (e) {
 
   if ((isNum || isDecimal) && operandOneActive) {
     setOperandOne(value);
+    // debugger;
     setLowerText();
   }
 
@@ -173,12 +188,34 @@ buttons.addEventListener("click", function (e) {
       setLowerText();
     }
   }
+
+  if (isPercent && operandOneActive) {
+    calc.operandOneArr = (Number(calc.operandOneArr.join("")) / 100)
+      .toString()
+      .slice(0, calc.operandOneArr.length + 2)
+      .split("");
+
+    setOperandOne();
+    setLowerText();
+  }
+
+  if (isPercent && operandTwoActive) {
+    calc.operandTwoArr = (Number(calc.operandTwoArr.join("")) / 100)
+      .toString()
+      .slice(0, calc.operandTwoArr.length + 2)
+      .split("");
+
+    setOperandTwo();
+    setLowerText();
+  }
 });
 
 const btnOperandOne = document.querySelector(".btnOperandOne");
 const btnOperandOneArr = document.querySelector(".btnOperandOneArr");
 const btnOperandTwo = document.querySelector(".btnOperandTwo");
 const btnOperandTwoArr = document.querySelector(".btnOperandTwoArr");
+const btnOpOneActive = document.querySelector(".opOneActive");
+const btnOpTwoActive = document.querySelector(".opTwoActive");
 
 btnOperandOne.addEventListener("click", function () {
   console.log(calc.operandOne);
@@ -186,4 +223,17 @@ btnOperandOne.addEventListener("click", function () {
 
 btnOperandOneArr.addEventListener("click", function () {
   console.log(calc.operandOneArr);
+});
+
+btnOpOneActive.addEventListener("click", function () {
+  console.log(
+    (!calc.operator && !calc.operandTwo) || (calc.answer && calc.operandTwo)
+  );
+});
+
+btnOpTwoActive.addEventListener("click", function () {
+  console.log(
+    (calc.operandOne && calc.operator && !calc.answer) ||
+      (calc.answer && calc.operandOne && calc.operator)
+  );
 });
