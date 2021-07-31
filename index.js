@@ -27,6 +27,8 @@ const formatOperandArr = function (arr) {
 };
 
 const setOperandOne = function (value) {
+  if (calc.operandOneArr.length + calc.operandTwoArr.length >= 18) return;
+  if (lowerTextBox.textContent.length >= 18) return;
   if (calc.answer) {
     if (value == ".") {
       console.log("yup");
@@ -46,11 +48,17 @@ const setOperandOne = function (value) {
 };
 
 const setOperandTwo = function (value) {
-  if (calc.answer) calc.operandTwo = null;
-  if (value == "." && calc.operandTwoArr.includes(".")) return;
-  if (value == "0" && calc.operandOneArr.length == 0) return;
-  if (value) calc.operandTwoArr.push(value);
-  calc.operandTwo = formatOperandArr(calc.operandTwoArr);
+  if (calc.operandOneArr.length + calc.operandTwoArr.length >= 18) return;
+  if (lowerTextBox.textContent.length >= 18) return;
+  if (calc.answer && !operandTwoActive()) {
+    calc.operandTwo = null;
+  } else {
+    console.log("hi");
+    if (value == "." && calc.operandTwoArr.includes(".")) return;
+    if (value == "0" && calc.operandTwoArr.length == 0) return;
+    if (value) calc.operandTwoArr.push(value);
+    calc.operandTwo = formatOperandArr(calc.operandTwoArr);
+  }
 };
 
 const calculate = function () {
@@ -91,8 +99,31 @@ const setLowerText = function () {
   }`;
 };
 
+const operandOneActive = function () {
+  if (
+    (!calc.operator && !calc.operandTwo) ||
+    (calc.answer && calc.operandTwo && !operandTwoActive())
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+const operandTwoActive = function () {
+  if (
+    (calc.operandOne && calc.operator && !calc.answer) ||
+    (calc.answer && calc.operandOne && calc.operator)
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
 const setUpperText = function () {
-  upperTextBox.textContent = calc.answer;
+  const upperText = calc.answer ? calc.answer.toString().slice(0, 13) : "";
+  upperTextBox.textContent = `${calc.answer ? upperText : "0"}`;
 };
 
 buttons.addEventListener("click", function (e) {
@@ -105,24 +136,30 @@ buttons.addEventListener("click", function (e) {
   const isClear = value == "AC";
   const isPlusMinus = value == "±";
   const isPercent = value == "%";
-  const operandOneActive =
-    (!calc.operator && !calc.operandTwo) || (calc.answer && calc.operandTwo);
-  const operandTwoActive =
-    (calc.operandOne && calc.operator && !calc.answer) ||
-    (calc.answer && calc.operandOne && calc.operator);
 
-  if ((isNum || isDecimal) && operandOneActive) {
+  if ((isNum || isDecimal) && operandOneActive()) {
+    console.log("1");
     setOperandOne(value);
     // debugger;
     setLowerText();
   }
 
-  if (isOperator && calc.operandOne) {
+  if (isOperator && calc.operandOne && !calc.operator) {
+    console.log("2");
     calc.operator = value;
     setLowerText();
   }
 
-  if ((isNum || isDecimal) && operandTwoActive) {
+  if (isOperator && calc.operator && calc.operandTwo) {
+    console.log("3");
+    calculate();
+    setOperandOne();
+    calc.operator = value;
+    setLowerText();
+  }
+
+  if ((isNum || isDecimal) && operandTwoActive()) {
+    console.log("4");
     setOperandTwo(value);
     setLowerText();
   }
@@ -131,13 +168,19 @@ buttons.addEventListener("click", function (e) {
     calculate();
   }
 
-  if ((isNum || isDecimal) && calc.answer && calc.operandTwo) {
+  if (
+    (isNum || isDecimal) &&
+    calc.answer &&
+    calc.operandTwo &&
+    !operandTwoActive()
+  ) {
+    console.log("5");
     clear();
     setOperandOne(value);
     setLowerText();
   }
 
-  if (isOperator && calc.answer && operandOneActive) {
+  if (isOperator && calc.answer && operandOneActive()) {
     setOperandOne();
     calc.operandTwoArr = [];
     setOperandTwo();
@@ -150,7 +193,7 @@ buttons.addEventListener("click", function (e) {
     clear();
   }
 
-  if (isPlusMinus && operandOneActive && !calc.answer) {
+  if (isPlusMinus && operandOneActive() && !calc.answer) {
     const firstEl = calc.operandOneArr[0];
     if (typeof Number(firstEl) == "number") {
       calc.operandOneArr[0] = (Number(calc.operandOneArr[0]) * -1).toString();
@@ -169,7 +212,7 @@ buttons.addEventListener("click", function (e) {
     }
   }
 
-  if (isPlusMinus && operandTwoActive && !calc.answer) {
+  if (isPlusMinus && operandTwoActive() && !calc.answer) {
     const firstEl = calc.operandTwoArr[0];
     if (!firstEl) return;
     if (typeof Number(firstEl) == "number") {
@@ -189,51 +232,24 @@ buttons.addEventListener("click", function (e) {
     }
   }
 
-  if (isPercent && operandOneActive) {
+  if (isPercent && operandOneActive()) {
+    if (!calc.operandOneArr[0]) return;
     calc.operandOneArr = (Number(calc.operandOneArr.join("")) / 100)
       .toString()
-      .slice(0, calc.operandOneArr.length + 2)
+      .slice(0, calc.operandOneArr.length + 3)
       .split("");
 
     setOperandOne();
     setLowerText();
   }
 
-  if (isPercent && operandTwoActive) {
+  if (isPercent && operandTwoActive()) {
     calc.operandTwoArr = (Number(calc.operandTwoArr.join("")) / 100)
       .toString()
-      .slice(0, calc.operandTwoArr.length + 2)
+      .slice(0, calc.operandTwoArr.length + 3)
       .split("");
 
     setOperandTwo();
     setLowerText();
   }
-});
-
-const btnOperandOne = document.querySelector(".btnOperandOne");
-const btnOperandOneArr = document.querySelector(".btnOperandOneArr");
-const btnOperandTwo = document.querySelector(".btnOperandTwo");
-const btnOperandTwoArr = document.querySelector(".btnOperandTwoArr");
-const btnOpOneActive = document.querySelector(".opOneActive");
-const btnOpTwoActive = document.querySelector(".opTwoActive");
-
-btnOperandOne.addEventListener("click", function () {
-  console.log(calc.operandOne);
-});
-
-btnOperandOneArr.addEventListener("click", function () {
-  console.log(calc.operandOneArr);
-});
-
-btnOpOneActive.addEventListener("click", function () {
-  console.log(
-    (!calc.operator && !calc.operandTwo) || (calc.answer && calc.operandTwo)
-  );
-});
-
-btnOpTwoActive.addEventListener("click", function () {
-  console.log(
-    (calc.operandOne && calc.operator && !calc.answer) ||
-      (calc.answer && calc.operandOne && calc.operator)
-  );
 });
